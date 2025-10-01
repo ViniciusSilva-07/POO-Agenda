@@ -1,10 +1,9 @@
-# BLOQUEAR TUDO inicialmente
+# Ignorar TUDO inicialmente
 *
 
-# PERMITIR APENAS estes arquivos/pastas DESTA pasta
+# Permitir APENAS estes arquivos/pastas
 !.gitignore
-!CMakeLists
-!CMakeLists.*
-!README
-!README.*
+!CMakeLists.txt
+!README.md
 !Design/
+!Design/*
