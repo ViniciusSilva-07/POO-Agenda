@@ -1,0 +1,10 @@
+# BLOQUEAR TUDO inicialmente
+*
+
+# PERMITIR APENAS estes arquivos/pastas DESTA pasta
+!.gitignore
+!CMakeLists
+!CMakeLists.*
+!README
+!README.*
+!Design/
