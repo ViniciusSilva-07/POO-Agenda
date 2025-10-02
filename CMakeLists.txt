@@ -4,10 +4,19 @@ project(Agenda)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Diretório com os headers
-include_directories(design)
+# Diretórios com os headers
+include_directories(src/model src/controller src/view src/persistence src/utils)
 
-# Apenas headers por enquanto (não há .cpp)
-add_executable(agenda main.cpp)
-
-# main.cpp será vazio por agora ou apenas com int main() {}
+# Adiciona todos os arquivos .cpp necessários
+add_executable(agenda 
+    src/main.cpp
+    src/model/Calendar.cpp
+    src/model/Event.cpp
+    src/model/RecurrenceRuleDaily.cpp
+    src/model/User.cpp
+    src/controller/Controller.cpp
+    src/view/ConsoleView.cpp
+    src/persistence/JSONPersistence.cpp
+    src/utils/TimeUtils.cpp
+    src/utils/UtilTemplates.cpp
+)

@@ -1,63 +1,88 @@
-# Agenda POO — Etapa 1
+# Agenda POO — Etapa 2
 
 ## Introdução
 
-Este projeto implementa uma **Agenda (planner/organizer)** em C++ como trabalho da disciplina de Programação Orientada a Objetos. O objetivo é permitir o gerenciamento de eventos, com funcionalidades de recorrência, busca, filtragem e persistência, explorando os principais conceitos de POO e boas práticas modernas da linguagem.
+Este projeto implementa uma **Agenda (planner/organizer)** em C++ como trabalho da disciplina de Programação Orientada a Objetos.  
+Na **Etapa 2**, a aplicação está **funcional em terminal (CLI)**, permitindo gerenciamento básico de eventos com persistência em JSON, além de aplicar os principais conceitos de POO e boas práticas modernas da linguagem.
+
+---
+
+## Funcionalidades Implementadas (Etapa 2)
+
+- Criar eventos (título, descrição, início, fim e tags).  
+- Listar eventos ordenados por data/hora.  
+- Salvar eventos em arquivo JSON.  
+- Carregar eventos a partir de arquivo JSON.  
+- Suporte a recorrência diária simples (`RecurrenceRuleDaily`).  
+- Tratamento de exceções (datas inválidas, erros de I/O).  
+
+---
 
 ## Estrutura Entregue
-- Headers das principais classes e interfaces (`Event.h`, `Calendar.h`, `RecurrenceRule.h`, `User.h`, `IView.h`, `IController.h`, `Persistence.h`, `GuiView.h`)
-- `CMakeLists.txt` para build automatizado
-- `README.md` (este arquivo)
-- `README_DESIGN.md` (detalhes da arquitetura e decisões de design)
-- Diagrama UML (no README e no README_DESIGN)
+
+- **Modelo**: `User`, `Calendar`, `Event`, `RecurrenceRule`, `RecurrenceRuleDaily`.  
+- **Controle**: `IController`, `Controller`.  
+- **Visualização**: `IView`, `ConsoleView` (CLI).  
+- **Persistência**: `IPersistence`, `JSONPersistence`.  
+- **Utilitários**: `TimeUtils`, `UtilTemplates`.  
+
+Outros arquivos:  
+- `CMakeLists.txt` → configuração de build.  
+- `main.cpp` → ponto de entrada da aplicação.  
+- `README.md` (este arquivo).  
+- `README_DESIGN.md` (detalhes da arquitetura e justificativas de design).  
+
+---
 
 ## Classes Principais e Relações
-- **User**: representa o dono da agenda.
-- **Calendar**: pertence a um usuário e gerencia uma coleção de eventos.
-- **Event**: representa um evento, com título, descrição, horários, tags e recorrência.
-- **RecurrenceRule**: interface abstrata para regras de recorrência, permitindo polimorfismo e extensibilidade.
-- **IView**: interface para visualização (CLI/GUI), desacoplando apresentação do modelo.
-- **IController**: interface para o controlador, responsável por orquestrar operações entre modelo e visualização.
-- **Persistence**: interface para persistência dos dados, permitindo múltiplas implementações (JSON, SQLite, etc).
 
-## Diagrama UML (Simplificado)
+- **User** → dono da agenda.  
+- **Calendar** → contém os eventos de um usuário.  
+- **Event** → representa um evento (título, descrição, horários, tags, recorrência).  
+- **RecurrenceRule** → interface abstrata para regras de recorrência.  
+- **RecurrenceRuleDaily** → regra de recorrência concreta (diária).  
+- **IView / ConsoleView** → visualização em terminal.  
+- **IController / Controller** → coordena modelo, visão e persistência.  
+- **IPersistence / JSONPersistence** → salva e carrega os eventos em JSON.  
 
-```
-+-------------------+
-|      User         |
-+-------------------+
-        ^
-        |
-+-------------------+
-|    Calendar       |
-+-------------------+
-        |
-        v
-+-------------------+
-|      Event        |
-+-------------------+
-        |
-        v
-+-------------------+
-| RecurrenceRule    |
-+-------------------+
+---
 
-Interfaces:
-IView, IController, Persistence
-```
+## Diagrama Simplificado
 
-## Objetivo da Etapa 1
-- Garantir que a arquitetura atenda os requisitos de **POO**:
-  - Encapsulamento (atributos privados, getters/setters)
-  - Herança e polimorfismo (`RecurrenceRule`, `IView`, `IController`, `Persistence`)
-  - Composição (`Calendar` contém `Event`)
-  - Sobrecarga de operadores (`Event` compara datas)
-  - Uso de STL (`std::vector`) e smart pointers (`std::shared_ptr`)
-  - Modularização e separação clara de responsabilidades
++-------------------+ +-------------------+ +-------------------+
+| User | | IView |<-------| ConsoleView |
++-------------------+ +-------------------+ +-------------------+
+| ^
+v |
++-------------------+ +-------------------+ +-------------------+
+| Calendar |<------>| IController |<-------| Controller |
++-------------------+ +-------------------+ +-------------------+
+|
+v
++-------------------+
+| Event |
++-------------------+
+|
+v
++-------------------+ +-------------------+
+| RecurrenceRule |<-------| RecurrenceDaily |
++-------------------+ +-------------------+
 
-## Evolução do Projeto
-O projeto está pronto para evoluir nas próximas etapas:
-- **Etapa 2:** Implementação funcional em terminal (CLI), persistência básica, tratamento de exceções
-- **Etapa 3:** Interface gráfica (GUI), persistência avançada, documentação final
+Persistência:
++-------------------+ +-------------------+
+| IPersistence |<-------| JSONPersistence |
++-------------------+ +-------------------+
 
-Para detalhes completos da arquitetura e justificativas de design, consulte o arquivo `README_DESIGN.md`.
+## Como Executar
+
+ Usando CMake
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+./agenda   # Linux / Mac
+agenda.exe # Windows
+
+
+Para detalhes completos da arquitetura e justificativas de design, consulte o arquivo README_DESIGN.md.
