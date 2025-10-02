@@ -1,9 +1,19 @@
-# Ignorar TUDO inicialmente
-*
+# Build directories
+build/
+bin/
+*.exe
 
-# Permitir APENAS estes arquivos/pastas
-!.gitignore
-!CMakeLists.txt
-!README.md
-!Design/
-!Design/*
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+*.swp
+*.swo
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
