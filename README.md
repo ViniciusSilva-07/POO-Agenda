@@ -1,88 +1,68 @@
-# Agenda POO — Etapa 2
+# Agenda POO (GUI)
 
 ## Introdução
 
-Este projeto implementa uma **Agenda (planner/organizer)** em C++ como trabalho da disciplina de Programação Orientada a Objetos.  
-Na **Etapa 2**, a aplicação está **funcional em terminal (CLI)**, permitindo gerenciamento básico de eventos com persistência em JSON, além de aplicar os principais conceitos de POO e boas práticas modernas da linguagem.
+Este projeto implementa uma Agenda (planner/organizer) em C++ como trabalho da disciplina de Programação Orientada a Objetos. A interface principal é gráfica (Win32 GUI) e a aplicação abre diretamente a janela da GUI ao iniciar. O código segue princípios de POO e usa persistência em JSON.
 
 ---
 
-## Funcionalidades Implementadas (Etapa 2)
+## Funcionalidades Implementadas
 
-- Criar eventos (título, descrição, início, fim e tags).  
-- Listar eventos ordenados por data/hora.  
-- Salvar eventos em arquivo JSON.  
-- Carregar eventos a partir de arquivo JSON.  
-- Suporte a recorrência diária simples (`RecurrenceRuleDaily`).  
-- Tratamento de exceções (datas inválidas, erros de I/O).  
+- Criar eventos (título, descrição, início, fim e tags) via formulário gráfico.
+- Listar eventos ordenados e agrupar por mês (visualização por mês disponível).
+- Salvar eventos em arquivo JSON.
+- Carregar eventos a partir de arquivo JSON (o carregador aceita datas em `DD-MM-YYYY HH:MM`).
+- Suporte a recorrência diária simples (`RecurrenceRuleDaily`).
+- Tratamento de exceções (datas inválidas, erros de I/O).
 
 ---
 
 ## Estrutura Entregue
 
-- **Modelo**: `User`, `Calendar`, `Event`, `RecurrenceRule`, `RecurrenceRuleDaily`.  
-- **Controle**: `IController`, `Controller`.  
-- **Visualização**: `IView`, `ConsoleView` (CLI).  
-- **Persistência**: `IPersistence`, `JSONPersistence`.  
-- **Utilitários**: `TimeUtils`, `UtilTemplates`.  
+- Modelo: `User`, `Calendar`, `Event`, `RecurrenceRule`, `RecurrenceRuleDaily`.
+- Controle: `Controller`.
+- Visualização: `IView`, `GUIView` (principal). `ConsoleView` permanece como referência, mas não é compilado por padrão.
+- Persistência: `IPersistence`, `JSONPersistence`.
+- Utilitários: `TimeUtils`, `UtilTemplates`.
 
-Outros arquivos:  
-- `CMakeLists.txt` → configuração de build.  
-- `main.cpp` → ponto de entrada da aplicação.  
-- `README.md` (este arquivo).  
-- `README_DESIGN.md` (detalhes da arquitetura e justificativas de design).  
-
----
-
-## Classes Principais e Relações
-
-- **User** → dono da agenda.  
-- **Calendar** → contém os eventos de um usuário.  
-- **Event** → representa um evento (título, descrição, horários, tags, recorrência).  
-- **RecurrenceRule** → interface abstrata para regras de recorrência.  
-- **RecurrenceRuleDaily** → regra de recorrência concreta (diária).  
-- **IView / ConsoleView** → visualização em terminal.  
-- **IController / Controller** → coordena modelo, visão e persistência.  
-- **IPersistence / JSONPersistence** → salva e carrega os eventos em JSON.  
+Outros arquivos relevantes:
+- `CMakeLists.txt` — configuração de build.
+- `main.cpp` — ponto de entrada da aplicação.
+- `Design/README_DESIGN.md` — detalhes da arquitetura e justificativas de design.
 
 ---
 
-## Diagrama Simplificado
+## Como Executar (Windows)
 
-+-------------------+ +-------------------+ +-------------------+
-| User | | IView |<-------| ConsoleView |
-+-------------------+ +-------------------+ +-------------------+
-| ^
-v |
-+-------------------+ +-------------------+ +-------------------+
-| Calendar |<------>| IController |<-------| Controller |
-+-------------------+ +-------------------+ +-------------------+
-|
-v
-+-------------------+
-| Event |
-+-------------------+
-|
-v
-+-------------------+ +-------------------+
-| RecurrenceRule |<-------| RecurrenceDaily |
-+-------------------+ +-------------------+
+Usando CMake (PowerShell):
 
-Persistência:
-+-------------------+ +-------------------+
-| IPersistence |<-------| JSONPersistence |
-+-------------------+ +-------------------+
-
-## Como Executar
-
- Usando CMake
-```bash
+```powershell
 mkdir build
 cd build
 cmake ..
-cmake --build .
-./agenda   # Linux / Mac
-agenda.exe # Windows
+cmake --build . --config Debug
+& "${PWD}\agenda.exe"
+```
 
+Observação: no Windows o executável será `agenda.exe` dentro da pasta `build`. Use o caminho absoluto ou o operador `&` do PowerShell para executar.
 
-Para detalhes completos da arquitetura e justificativas de design, consulte o arquivo README_DESIGN.md.
+---
+
+## Notas de Uso
+
+- A GUI solicita datas no formato `DD-MM-YYYY` para entrada; para exibição a aplicação também usa `DD-MM-YYYY`.
+- O botão "Eventos (Mes)" exibe o mês por extenso (sem acentos) e insere uma linha em branco entre meses para facilitar a leitura.
+- O carregador de JSON aceita datas tanto no formato interno (`YYYY-MM-DD HH:MM`) quanto em `DD-MM-YYYY HH:MM` (compatibilidade com arquivos gerados manualmente).
+- Mensagens foram reduzidas: a aplicação exibe apenas mensagens de erro e a notificação de sucesso ao carregar arquivos.
+
+---
+
+## Observações Técnicas
+
+- A conversão e manipulação de datas é feita em `src/utils/TimeUtils.cpp`.
+- A persistência JSON está em `src/persistence/JSONPersistence.cpp`.
+- A interface principal está implementada em `src/view/GUIView.cpp`.
+
+---
+
+Para detalhes completos da arquitetura e justificativas de design, consulte `Design/README_DESIGN.md`.

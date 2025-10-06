@@ -18,6 +18,9 @@ public:
                      const std::vector<std::string>& tags) override;
 
     void listEvents() const override;
+    std::vector<std::string> getEventStrings() const;
+    std::vector<std::string> getEventStringsForDay(const std::string& ymd) const;
+    std::vector<std::string> getEventStringsByMonth() const;
     void save(const std::string& filename) const override;
     void load(const std::string& filename) override;
 };

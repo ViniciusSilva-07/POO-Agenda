@@ -15,8 +15,11 @@ add_executable(agenda
     src/model/RecurrenceRuleDaily.cpp
     src/model/User.cpp
     src/controller/Controller.cpp
-    src/view/ConsoleView.cpp
+    src/view/GUIView.cpp
     src/persistence/JSONPersistence.cpp
     src/utils/TimeUtils.cpp
     src/utils/UtilTemplates.cpp
 )
+if (WIN32)
+    target_link_libraries(agenda PRIVATE comdlg32)
+endif()

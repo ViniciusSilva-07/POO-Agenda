@@ -11,7 +11,7 @@ std::chrono::system_clock::time_point TimeUtils::fromString(const std::string& s
     std::istringstream ss(s);
     ss >> std::get_time(&tm, "%Y-%m-%d %H:%M");
     if (ss.fail()) {
-        throw std::runtime_error("Formato de data inválido: esperado YYYY-MM-DD HH:MM");
+        throw std::runtime_error("Formato de data invalido: esperado YYYY-MM-DD HH:MM");
     }
     std::time_t time = std::mktime(&tm);
     return system_clock::from_time_t(time);

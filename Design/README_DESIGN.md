@@ -2,7 +2,7 @@
 
 O projeto **Agenda** foi desenhado para ser modular, extensível e alinhado com os princípios da Programação Orientada a Objetos em C++.  
 A arquitetura separa claramente as responsabilidades entre **modelo**, **controlador**, **visualização** e **persistência**, facilitando manutenção e evolução.  
-Na versão 2, a aplicação é executada via **terminal (CLI)**, atendendo aos requisitos.  
+Atualmente a interface principal é gráfica (Win32 GUI) e a aplicação abre diretamente a GUI ao iniciar.
 
 ---
 
@@ -16,20 +16,19 @@ Na versão 2, a aplicação é executada via **terminal (CLI)**, atendendo aos r
   - `RecurrenceRuleDaily`: Implementação concreta da regra de recorrência diária.
 
 - **Controle**
-  - `IController`: Interface para o controlador, responsável por orquestrar operações entre modelo e visualização.
-  - `Controller`: Implementação concreta, que manipula eventos e delega operações de persistência e visualização.
+  - `Controller`: Responsável por orquestrar operações entre modelo e visualização, gerenciar persistência e fornecer listas formatadas para a GUI.
 
 - **Visualização**
   - `IView`: Interface para a visualização (abstrata).
-  - `ConsoleView`: Implementação em terminal (versão 2).
-  - `GuiView`: Implementação futura da interface gráfica (versão 3).
+  - `GUIView`: Implementação principal baseada na API Win32 (abertura direta da janela, formulários e listagem).
+  - `ConsoleView`: Mantido no repositório como implementação alternativa, mas não é invocado no fluxo padrão.
 
 - **Persistência**
   - `IPersistence`: Interface para persistência de dados, abstraindo o formato de armazenamento.
-  - `JSONPersistence`: Implementação concreta que salva/carrega eventos em formato JSON.
+  - `JSONPersistence`: Implementação concreta que salva/carrega eventos em formato JSON. O carregador aceita datas no formato `DD-MM-YYYY HH:MM` além do formato interno.
 
 - **Utilitários**
-  - `TimeUtils`: Converte datas entre `std::chrono::system_clock::time_point` e strings no formato `YYYY-MM-DD HH:MM`.
+  - `TimeUtils`: Converte datas entre `std::chrono::system_clock::time_point` e strings; internamente usa `YYYY-MM-DD HH:MM`, mas a interface exibe `DD-MM-YYYY`.
   - `UtilTemplates`: Exemplo de template genérico (`join`) para concatenar listas de strings.
 
 ---
@@ -39,7 +38,7 @@ Na versão 2, a aplicação é executada via **terminal (CLI)**, atendendo aos r
 - **Encapsulamento**: todos os atributos são privados e acessados por getters e setters.  
 - **Herança e Polimorfismo**: `RecurrenceRule` (abstrata) e `RecurrenceRuleDaily` (concreta).  
 - **Composição**: `Calendar` mantém uma coleção de `Event`.  
-- **Interfaces (contratos)**: `IView`, `IController`, `IPersistence` permitem baixo acoplamento e substituição de implementações.  
+- **Interfaces (contratos)**: `IView`, `IPersistence` permitem baixo acoplamento e substituição de implementações.  
 - **Sobrecarga de Operadores**: `Event::operator<` para ordenação cronológica e `Event::operator==` para comparação.  
 - **Exceções**: tratam erros de entrada (datas inválidas) e problemas de persistência.  
 - **Smart Pointers**: uso de `std::shared_ptr<Event>` para gerenciamento seguro de memória.  
@@ -47,7 +46,7 @@ Na versão 2, a aplicação é executada via **terminal (CLI)**, atendendo aos r
 - **Separação de Camadas (MVC simplificado)**:  
   - Modelo: `User`, `Calendar`, `Event`, `RecurrenceRule`.  
   - Controle: `Controller`.  
-  - Visão: `ConsoleView` (versão 2), `GuiView` (versão 3).  
+  - Visão: `GUIView` (principal).  
 
 ---
 
@@ -55,63 +54,48 @@ Na versão 2, a aplicação é executada via **terminal (CLI)**, atendendo aos r
 
 - Uso de **interfaces** desacopla implementação do contrato, permitindo evolução futura (ex.: trocar `JSONPersistence` por `SQLitePersistence`).  
 - O formato **JSON** foi escolhido pela simplicidade, legibilidade e facilidade de parsing.  
-- A escolha de **CLI na versão 2** segue o requisito da disciplina, mas já há previsão para **GUI na versão 3**.  
-- **Smart pointers** evitam vazamentos de memória e tornam o código mais seguro.  
-- A separação em múltiplos arquivos `.h` e `.cpp` garante modularidade e facilita manutenção.  
-- O design MVC simplificado organiza responsabilidades de forma clara e didática.  
+- A interface gráfica foi implementada com Win32 API para uma aplicação desktop leve e sem dependências externas.
 
 ---
 
-## Diagrama de Arquitetura
+## Diagrama de Arquitetura (simplificado)
 
-+-------------------+ +-------------------+ +-------------------+
-| User | | IView |<-------| ConsoleView |
-+-------------------+ +-------------------+ +-------------------+
-| ^ ^
-v | |
-+-------------------+ +-------------------+ +-------------------+
-| Calendar |<------>| IController |<-------| Controller |
-+-------------------+ +-------------------+ +-------------------+
-|
-v
-+-------------------+
-| Event |
-+-------------------+
-|
-v
-+-------------------+ +-------------------+
-| RecurrenceRule |<-------| RecurrenceDaily |
-+-------------------+ +-------------------+
++-------------------+     +-------------------+     +-------------------+
+| User              |     | IView             |<----| GUIView           |
++-------------------+     +-------------------+     +-------------------+
+      ^
+      |
++-------------------+     +-------------------+     +-------------------+
+| Calendar          |<--->| Controller        |<----| Persistence (JSON)|
++-------------------+     +-------------------+     +-------------------+
+      |
+      v
+  +-------------------+
+  | Event             |
+  +-------------------+
 
-Persistência:
-+-------------------+ +-------------------+
-| IPersistence |<-------| JSONPersistence |
-+-------------------+ +-------------------+
+## Fluxo de Execução (GUI)
 
-## Fluxo de Execução (Versão 2 – CLI)
-
-1. O programa inicia pedindo nome e email do usuário.  
-2. Exibe um menu com as opções:  
-
-1 - criar evento
-2 - listar eventos
-3 - salvar
-4 - carregar
-0 - sair
-
-3. Usuário pode criar eventos, listar, salvar em JSON e carregar do arquivo.  
-4. Eventos são exibidos ordenados por data/hora.  
+1. O programa inicia e abre diretamente a janela gráfica principal.
+2. A GUI permite criar eventos via formulário com campos separados para data (DD-MM-YYYY) e hora (HH:MM).
+3. Botões principais:
+   - "Criar": cria o evento com os dados do formulário e limpa os campos.
+   - "Eventos": atualiza a lista principal (mesma saída que a listagem padrão).
+   - "Eventos (Mes)": agrupa eventos por mês e exibe mês por extenso (sem acentos) com uma linha em branco entre meses.
+   - "Salvar": abre o diálogo de salvar e grava os eventos em JSON.
+   - "Carregar": abre o diálogo para selecionar um JSON; ao carregar com sucesso o app mostra uma notificação "Carregado de <arquivo>".
+4. Listagem de eventos usa o formato: `Titulo | Dia(s) | Horario | tags` com data no formato `DD-MM-YYYY` para exibição.
 
 ---
 
-## Checklist da Versão 2
+## Observações de Usabilidade e Compatibilidade
 
-- Estrutura modular (`.h` + `.cpp`, `main.cpp` na raiz).  
-- Agenda funcional em terminal (CLI).  
-- Criação e listagem de eventos.  
-- Salvamento e carregamento em arquivo JSON.  
-- Classes com herança, polimorfismo, composição.  
-- Exceções e tratamento de erros.  
-- Uso de smart pointers (`shared_ptr`).  
-- Sobrecarga de operadores.  
-- Função template (`join`).  
+- O parser de `JSONPersistence` aceita datas gravadas tanto no formato interno `YYYY-MM-DD HH:MM` quanto em `DD-MM-YYYY HH:MM` (mais amigável ao usuário). Se um arquivo tiver datas inválidas, o carregamento apresenta uma mensagem de erro.
+- Mensagens da interface foram reduzidas: o sistema exibe apenas mensagens de erro e a notificação de sucesso ao carregar arquivos. Mensagens informativas (ex.: "Evento criado") não são mais exibidas em MessageBox para reduzir interrupções.
+- `ConsoleView` permanece no repositório como implementação alternativa, mas não é incluído no build por padrão.
+
+---
+
+## Link do Vídeo apresentando Projeto:
+
+Link do Google Drive: **https://drive.google.com/file/d/1HvPP0ZAQ-4PHmPKFi-o-LJM4PriW4UtQ/view?usp=sharing**

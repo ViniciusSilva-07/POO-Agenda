@@ -31,7 +31,7 @@ static std::string escapeJson(const std::string& s) {
 }
 void JSONPersistence::save(const std::vector<std::shared_ptr<Event>>& events, const std::string& filename) {
     std::ofstream ofs(filename);
-    if (!ofs) throw std::runtime_error("Não foi possível abrir arquivo para escrita: " + filename);
+    if (!ofs) throw std::runtime_error("Nao foi possivel abrir arquivo para escrita: " + filename);
 
     ofs << "[\n";
     for (size_t i = 0; i < events.size(); ++i) {
@@ -70,7 +70,7 @@ static std::string unquote(const std::string& s) {
 // For simplicity, this parser expects the exact structure produced by save()
 std::vector<std::shared_ptr<Event>> JSONPersistence::load(const std::string& filename) {
     std::ifstream ifs(filename);
-    if (!ifs) throw std::runtime_error("Não foi possível abrir arquivo para leitura: " + filename);
+    if (!ifs) throw std::runtime_error("Nao foi possivel abrir arquivo para leitura: " + filename);
 
     std::vector<std::shared_ptr<Event>> events;
     std::string line;
@@ -99,6 +99,8 @@ std::vector<std::shared_ptr<Event>> JSONPersistence::load(const std::string& fil
             // trim
             while (!val.empty() && isspace(val.front())) val.erase(val.begin());
             while (!val.empty() && isspace(val.back())) val.pop_back();
+            // remove trailing comma if present (fields in save() end with a comma)
+            if (!val.empty() && val.back() == ',') { val.pop_back(); while (!val.empty() && isspace(val.back())) val.pop_back(); }
             // if it's an array or string, return as-is
             return val;
         };
@@ -114,6 +116,24 @@ std::vector<std::shared_ptr<Event>> JSONPersistence::load(const std::string& fil
         description = unquote(description);
         start = unquote(start);
         end = unquote(end);
+
+        // Accept files where dates are stored in DD-MM-YYYY HH:MM; convert to YYYY-MM-DD HH:MM
+        auto convertDmyToYmdIfNeeded = [](const std::string &s)->std::string{
+            if (s.size() >= 16 && isdigit((unsigned char)s[0]) && isdigit((unsigned char)s[1]) && s[2]=='-' && isdigit((unsigned char)s[3]) && isdigit((unsigned char)s[4]) && s[5]=='-' && isdigit((unsigned char)s[6]) ) {
+                // pattern DD-MM-YYYY ...
+                // ensure positions: 0-1 dd, 3-4 mm, 6-9 yyyy
+                std::string dd = s.substr(0,2);
+                std::string mm = s.substr(3,2);
+                std::string yyyy = s.substr(6,4);
+                std::string rest = "";
+                if (s.size() > 10) rest = s.substr(10); // from space onwards
+                return yyyy + std::string("-") + mm + std::string("-") + dd + rest;
+            }
+            return s;
+        };
+
+        start = convertDmyToYmdIfNeeded(start);
+        end = convertDmyToYmdIfNeeded(end);
 
         auto startTp = TimeUtils::fromString(start);
         auto endTp = TimeUtils::fromString(end);

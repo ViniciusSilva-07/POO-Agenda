@@ -17,3 +17,20 @@ CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 Makefile
+
+# MinGW / build artifacts
+/**/*.obj
+/**/*.o
+/*.exe
+
+# GUI build artifacts and temp
+*.log
+*.tmp
+
+# Jupyter / Notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Common Python artifacts (if any)
+__pycache__/
+*.pyc
